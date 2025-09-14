@@ -1,9 +1,12 @@
-use crate::core::get_shell;
-
+use crate::core::add_env;
 
 mod core;
 
 
+
+fn usage() {
+
+}
 
 
 
@@ -14,10 +17,8 @@ fn main() {
     let env_name = args.get(0).unwrap().clone();
     let env_value = args.get(0).unwrap().clone();
 
-    let shell = get_shell();
 
-    println!("{:?}", shell);
-    
+    add_env(env_name, env_value);
 
 
 }
