@@ -31,8 +31,6 @@ fn main() {
     let env_value = args.get(2).unwrap().clone();
 
     init_setup();
-    
-
 
     println!("env_name: {}, env_value: {}", env_name, env_value);
 
