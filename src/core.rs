@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::fs::File;
 use std::path::Path;
 use std::{collections::HashMap, fs::OpenOptions};
@@ -29,6 +30,11 @@ pub fn init_setup() {
     write_to_file(&bashrc_path, content.as_str());
 
     // create fish_profile file if not exists
+    // not need to add the file in tha config.fish
+    let fish_path = ".config/fish/conf.d/envset.fish";
+    let fishconf_path = Path::new(&home_dir).join(fish_path);
+    File::create(&fishconf_path).expect("Unable to create envset.fish file");
+    
 }
 
 
@@ -86,14 +92,16 @@ pub fn config_bash_env(env_name: String, env_value: String) {
 }
 
 pub fn config_zsh_env(env_name: String, env_value: String) {
-    let bash_profile_path = std::path::Path::new(get_config_dir().as_str()).join("zsh_profile");
+    let home_dir = std::env::var("HOME").expect("Unable to get HOME directory");
+    let fish_path = ".config/fish/conf.d/envset.fish";
+    let fishconf_path = Path::new(&home_dir).join(fish_path);
 
     if env_name.trim() == "PATH" {
         let content = format!("export {}=\"$PATH:{}\"", env_name, env_value);
-        write_to_file(&bash_profile_path, content.as_str());
+        write_to_file(&fishconf_path, content.as_str());
     } else {
         let content = format!("export {}={}", env_name, env_value);
-        write_to_file(&bash_profile_path, content.as_str());
+        write_to_file(&fishconf_path, content.as_str());
 
     }
 }
