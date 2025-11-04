@@ -1,4 +1,3 @@
-use std::fmt::format;
 use std::fs::File;
 use std::path::Path;
 use std::{collections::HashMap, fs::OpenOptions};
@@ -91,26 +90,27 @@ pub fn config_bash_env(env_name: String, env_value: String) {
     }
 }
 
-pub fn config_zsh_env(env_name: String, env_value: String) {
+/// fish uses set to set variables. set -gx variable value
+/// unlike bash related shells use export.
+/// set program only sets for current shell or child shell otherwise not parmanent
+pub fn config_fish_env(env_name: String, env_value: String) {
     let home_dir = std::env::var("HOME").expect("Unable to get HOME directory");
     let fish_path = ".config/fish/conf.d/envset.fish";
     let fishconf_path = Path::new(&home_dir).join(fish_path);
 
     if env_name.trim() == "PATH" {
-        let content = format!("export {}=\"$PATH:{}\"", env_name, env_value);
+        let content = format!("set -gx {} $PATH", env_value);
         write_to_file(&fishconf_path, content.as_str());
     } else {
-        let content = format!("export {}={}", env_name, env_value);
+        let content = format!("set -gx {} {}", env_name, env_value);
         write_to_file(&fishconf_path, content.as_str());
 
     }
 }
 
-/// fish uses set to set variables. set -gx variable value
-/// unlike bash related shells use export.
-/// set program only sets for current shell or child shell otherwise not parmanent
-pub fn config_fish_env(env_name: String, env_value: String) {
-    let profile_path = Path::new(get_config_dir().as_str()).join("fish_profile.fish");
+
+pub fn config_zsh_env(env_name: String, env_value: String) {
+    let profile_path = Path::new(get_config_dir().as_str()).join("zsh_profile");
 
     if env_name.trim() == "PATH" {
         let content = format!("export {}=\"$PATH:{}\"", env_name, env_value);
