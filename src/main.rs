@@ -1,6 +1,7 @@
 use crate::core::{add_env, init_setup};
 
 mod core;
+mod shellconfig;
 
 
 
