@@ -100,7 +100,10 @@ pub fn config_zsh_env(env_name: String, env_value: String) {
 }
 
 
-
+// A experiment implementation for config shells
+pub fn config_shell_env(conf: ShellConfig, env_name: String, env_value: String) {
+    todo!("implement generic shell config updater");
+}
 
 
 /// Adds env to the current shell. which is determined by $SHELL env variable.
