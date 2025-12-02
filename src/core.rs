@@ -1,7 +1,10 @@
 use std::fs::File;
 use std::path::Path;
-use std::{collections::HashMap, fs::OpenOptions};
+use std::fs::OpenOptions;
 use std::io::Write;
+
+
+use crate::shellconfig::*;
 
 
 pub const WORKING_DIR: &str = ".config/envset/";
@@ -97,13 +100,16 @@ pub fn config_zsh_env(env_name: String, env_value: String) {
 }
 
 
+
+
+
 /// Adds env to the current shell. which is determined by $SHELL env variable.
 pub fn add_env(env_name: String, env_value: String) {
-    let shell = get_shell();
+    let shell = Shell::get_shell();
     println!("{:?}", shell);
 
     match shell {
-        Shell::UNKOWN(shell_path) => println!("Unable to add to '{}'", shell_path),
+        Shell::UNKOWN(shell_path) => println!("Unkown Shell: '{}'", shell_path),
         Shell::BASH => config_bash_env(env_name, env_value),
         Shell::FISH => config_fish_env(env_name, env_value),
         Shell::ZSH => config_zsh_env(env_name, env_value),

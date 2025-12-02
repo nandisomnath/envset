@@ -26,6 +26,7 @@ impl Shell {
             return Shell::ZSH;
         }
 
+        // This shell path is returned for logging.
         return Shell::UNKOWN(shell_path);
     }
 }
@@ -64,7 +65,7 @@ impl ShellConfig {
                 Some(".config/fish/config.fish"),
                 Some(".config/fish/conf.d/envset.fish"),
             ),
-            Shell::UNKOWN(s) => ShellConfig::unkown(),
+            Shell::UNKOWN(_) => ShellConfig::unkown(),
         }
     }
 }
