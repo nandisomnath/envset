@@ -1,7 +1,7 @@
-use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::{collections::HashMap, fs::OpenOptions};
+use crate::shell::{BashShell, Shell};
 
 //pub const WORKING_DIR: &str = ".config/envset/";
 
@@ -12,6 +12,12 @@ pub enum ShellOptions {
     ZSH,
     UNKOWN(String), // When no matching shell is found
 }
+
+
+impl Into<dyn Shell> for  {
+    
+}
+
 
 /// Indentifies the shell and gives a value from enum Shell.
 pub fn get_shell() -> ShellOptions {
@@ -43,6 +49,11 @@ fn write_to_file(file_path: &std::path::Path, content: &str) {
     file.flush().unwrap();
 }
 
+
+
+// In bash to add path we have to use export.
+// basically it is old model and only use to add path for current shell.
+// TODO: implement bash path setter using export and adding it in bash_profile to make it permanent.
 pub fn config_bash_env(env_value: String) {
     let bash_profile_path = Path::new(get_config_dir().as_str()).join("bash_profile");
     println!("{:?}", bash_profile_path);
@@ -55,9 +66,9 @@ pub fn config_bash_env(env_value: String) {
     }
 }
 
-/// fish uses set to set variables. set -gx variable value
-/// unlike bash related shells use export.
-/// set program only sets for current shell or child shell otherwise not parmanent
+// In fish adding permanent path variable is easy just use builtin functions
+// fish_add_path  $HOME/.config/emacs/bin/
+// This function will add the path permanently.
 pub fn config_fish_env(env_value: String) {
     let home_dir = std::env::var("HOME").expect("Unable to get HOME directory");
     let fish_path = ".config/fish/conf.d/envset.fish";
@@ -72,6 +83,9 @@ pub fn config_fish_env(env_value: String) {
     }
 }
 
+/// Same as bash
+/// Some extra thing I found that it have a path array which
+/// is used to sync with other paths.
 pub fn config_zsh_env(env_value: String) {
     let profile_path = Path::new(get_config_dir().as_str()).join("zsh_profile");
 
@@ -86,13 +100,21 @@ pub fn config_zsh_env(env_value: String) {
 
 /// Adds env to the current shell. which is determined by $SHELL env variable.
 pub fn add_env(env_value: String) {
-    let shell = get_shell();
-    println!("{:?}", shell);
+    let shop = get_shell();
+    println!("{:?}", shop);
+
+    
+
+
 
     match shell {
         ShellOptions::UNKOWN(shell_path) => println!("Unable to add to '{}'", shell_path),
-        ShellOptions::BASH => config_bash_env(env_value),
-        ShellOptions::FISH => config_fish_env(env_value),
-        ShellOptions::ZSH => config_zsh_env(env_value),
+        ShellOptions::BASH => {
+            // TODO: configure the bash use Shell trait fucntions
+        }
+        ShellOptions::FISH => {//TODO: configure this shells usng Shell trait functions
+            },
+        ShellOptions::ZSH => {//TODO: configure this shells usng Shell trait functions
+            },
     }
 }
