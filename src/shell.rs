@@ -1,38 +1,12 @@
-use std::collections::HashMap;
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
-use crate::core::ShellOptions;
-
-// pub(crate) struct Shell {
-//     name: String,
-//     config_path: String,
-//     user_config_path: String,
-// }
-
-// impl Shell {
-//     pub fn new(name: String, config_path: String, user_config_path: String) -> Self {
-//         Self {
-//             name: name,
-//             config_path: config_path,
-//             user_config_path: user_config_path,
-//         }
-//     }
-
-//     /// This function setup shell to use envset
-//     /// This function return a error if failed to setup.
-//     pub fn init_setup(&self) -> Result<(), String> {
-//         Ok(())
-//     }
-
-//     /// Returns shell config of the shells
-//     /// How to make configs for this.
-//     /// ShellOptions as a key, return a new Shell instance
-//     /// Every new shell config you have to config it.
-//     pub fn from(sop: ShellOptions) -> Self {
-//         let mut map = HashMap::new();
-
-//         return map;
-//     }
-// }
+pub fn get_home_dir() -> String {
+    let home = env::var("HOME").expect("Unable to get home dir");
+    return home;
+}
 
 /// Shell is a blueprint for other shell installations
 pub trait Shell {
@@ -56,15 +30,25 @@ pub struct ZshShell;
 
 impl Shell for ZshShell {
     fn name(&self) -> String {
-        todo!()
+        String::from("zsh")
     }
 
     fn shell_config_path(&self) -> String {
-        todo!()
+        let home = get_home_dir();
+        let path = Path::new(&home).join(".zshrc");
+        return path
+            .to_str()
+            .expect("Unable to make path to String")
+            .to_string();
     }
 
     fn user_config_path(&self) -> String {
-        todo!()
+        let home = get_home_dir();
+        let path = Path::new(&home).join(".config/envset/zshrc");
+        return path
+            .to_str()
+            .expect("Unable to make path to String")
+            .to_string();
     }
 
     fn inits_setup(&self) {
@@ -72,7 +56,7 @@ impl Shell for ZshShell {
     }
 
     fn new() -> Self {
-        todo!()
+        Self {}
     }
 
     fn add_env(&self) -> Result<(), String> {
@@ -88,15 +72,26 @@ pub struct FishShell;
 
 impl Shell for FishShell {
     fn name(&self) -> String {
-        todo!()
+        String::from("fish")
     }
 
     fn shell_config_path(&self) -> String {
-        todo!()
+        let home = get_home_dir();
+        todo!("create this fish file if the shell is installed.");
+        let path = Path::new(&home).join(".config/fish/conf.d/envset.fish");
+        return path
+            .to_str()
+            .expect("Unable to make path to String")
+            .to_string();
     }
 
     fn user_config_path(&self) -> String {
-        todo!()
+        let home = get_home_dir();
+        let path = Path::new(&home).join(".config/envset/envset.fish");
+        return path
+            .to_str()
+            .expect("Unable to make path to String")
+            .to_string();
     }
 
     fn inits_setup(&self) {
