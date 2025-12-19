@@ -1,7 +1,7 @@
+use crate::shell::{BashShell, Shell};
 use std::io::Write;
 use std::path::Path;
 use std::{collections::HashMap, fs::OpenOptions};
-use crate::shell::{BashShell, Shell};
 
 //pub const WORKING_DIR: &str = ".config/envset/";
 
@@ -12,12 +12,6 @@ pub enum ShellOptions {
     ZSH,
     UNKOWN(String), // When no matching shell is found
 }
-
-
-impl Into<dyn Shell> for  {
-    
-}
-
 
 /// Indentifies the shell and gives a value from enum Shell.
 pub fn get_shell() -> ShellOptions {
@@ -48,8 +42,6 @@ fn write_to_file(file_path: &std::path::Path, content: &str) {
     writeln!(file, "{}", content).unwrap();
     file.flush().unwrap();
 }
-
-
 
 // In bash to add path we have to use export.
 // basically it is old model and only use to add path for current shell.
@@ -103,18 +95,14 @@ pub fn add_env(env_value: String) {
     let shop = get_shell();
     println!("{:?}", shop);
 
-    
-
-
-
-    match shell {
+    match shop {
         ShellOptions::UNKOWN(shell_path) => println!("Unable to add to '{}'", shell_path),
         ShellOptions::BASH => {
             // TODO: configure the bash use Shell trait fucntions
-        }
-        ShellOptions::FISH => {//TODO: configure this shells usng Shell trait functions
-            },
-        ShellOptions::ZSH => {//TODO: configure this shells usng Shell trait functions
-            },
+        },
+        ShellOptions::FISH => { //TODO: configure this shells usng Shell trait functions
+        },
+        ShellOptions::ZSH => { //TODO: configure this shells usng Shell trait functions
+        },
     }
 }

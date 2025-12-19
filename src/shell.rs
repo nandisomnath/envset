@@ -34,7 +34,6 @@ use crate::core::ShellOptions;
 //     }
 // }
 
-
 /// Shell is a blueprint for other shell installations
 pub trait Shell {
     /// Returns name of the shell
@@ -52,8 +51,6 @@ pub trait Shell {
     /// This function is used to delete env
     fn delete_env(&self) -> Result<(), String>;
 }
-
-
 
 pub struct ZshShell;
 
@@ -86,8 +83,6 @@ impl Shell for ZshShell {
         todo!()
     }
 }
-
-
 
 pub struct FishShell;
 
@@ -152,4 +147,3 @@ impl Shell for BashShell {
         todo!()
     }
 }
-

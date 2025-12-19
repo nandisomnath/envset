@@ -1,36 +1,35 @@
-use crate::core::{add_env, init_setup};
+use clap::Parser;
 
-mod core;
-mod shell;
 
-fn usage() {
-    println!("Usage: envset <PATH_VALUE>");
-    println!("\n\nSets or Edit an path variable for the current seleted shell.");
-    println!("It will update or add or modify only added shell using this program");
-    println!("\nExample:");
-    println!("  envset ~/mybin");
-    //println!("  envset MY_VAR some_value");
-    //println!("\nif no arguments are provided, the env variable will be deleted");
-    //println!(
-    //  "Note: For PATH variable, it will not delete the whole PATH variable, only remove the not exist paths"
-    //);
-    //println!("Example: envset PATH");
+/// Sets or Edit an path variable for the current seleted shell.
+///
+/// It will update or add or modify only added shell using this program.
+/// This program will always add the path to every supported shell which are installed now.
+/// Note: if shell is installed later then it need to config by manual or using appropriate
+///       program command.
+#[derive(Parser, Debug)]
+#[command(author, version, long_about, about)]
+struct Args {
+    /// Path to add in shell.
+    ///
+    /// This will add any directory to the shell.
+    /// It will add in all shell so donot use any shell specific path reference.
+    #[arg(short, long)]
+    path: String,
+
+    /// Toggles add or delete the value
+    ///
+    /// By default it is false, so path will be added if it is set to `false` then
+    /// path will be deleted from the shell env if it is added previously.
+    #[arg(id = "remove", short, long)]
+    remove_path: bool,
 }
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
+    let args = Args::parse();
 
-    if args.len() < 1 {
-        usage();
-        return;
-    }
+    let value = args.path;
 
-    let env_value = args.get(1).unwrap().clone();
-    //let env_value = args.get(2).unwrap().clone();
-
-    init_setup();
-
-    //println!("env_name: {}, env_value: {}", env_name, env_value);
-
-    add_env(env_value);
+    println!("{}", value);
+    println!("{}", args.remove_path);
 }
