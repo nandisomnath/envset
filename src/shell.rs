@@ -1,8 +1,8 @@
 use std::{
     env,
     fs::{self, File, OpenOptions},
-    io::{BufRead, BufReader, BufWriter, SeekFrom, Write},
-    path::Path,
+    io::{BufRead, BufReader, BufWriter, Write},
+    path::{Path, PathBuf},
 };
 
 pub fn get_home_dir() -> String {
@@ -40,25 +40,22 @@ pub trait Shell {
     /// Returns name of the shell
     fn name(&self) -> String;
     /// Returns shell config path
-    fn shell_config_path(&self) -> String;
+    fn shell_config_path(&self) -> PathBuf;
     /// Returns user config path. Mostly in .config/envset/ folder.
-    fn user_config_path(&self) -> String;
+    fn user_config_path(&self) -> PathBuf;
     /// Setup all the configs and other things to actually work the envset
     fn inits_setup(&self);
     /// Create that shell instance from shell options
     fn new() -> Self;
     /// This function is used to add env
-    fn add_env(&self, path: String) -> Result<(), String>;
+    fn add_env(&self, env_string: String) -> Result<(), String>;
     /// This function is used to delete env
-    fn delete_env(&self, path: String) -> Result<(), String>;
+    fn delete_env(&self, env_string: String) -> Result<(), String>;
 
     // Append to a file
     fn write(&self, shell_code: String) -> Result<(), String> {
-        match OpenOptions::new()
-            .write(true)
-            .append(true)
-            .open(self.shell_config_path())
-        {
+        let sconfpath = self.shell_config_path();
+        match OpenOptions::new().write(true).append(true).open(sconfpath) {
             Ok(mut file) => file.write_all(shell_code.as_bytes()),
             Err(_) => return Err(String::from("Unable to open shell config file")),
         };
@@ -72,7 +69,7 @@ pub trait Shell {
             .append(true)
             .open(self.shell_config_path())
         {
-            Ok(mut file) => delete_line(&mut file, self.user_config_path(), shell_code),
+            Ok(mut file) => delete_line(&mut file, self.user_config_path().to_str().unwrap().to_string(), shell_code),
             Err(_) => return Err(String::from("Unable to open shell config file")),
         };
         Ok(())
@@ -86,22 +83,18 @@ impl Shell for ZshShell {
         String::from("zsh")
     }
 
-    fn shell_config_path(&self) -> String {
+    fn shell_config_path(&self) -> PathBuf {
         let home = get_home_dir();
-        let path = Path::new(&home).join(".zshrc");
-        return path
-            .to_str()
-            .expect("Unable to make path to String")
-            .to_string();
+        let mut path = PathBuf::from(&home);
+        path.push(".zshrc");
+        return path;
     }
 
-    fn user_config_path(&self) -> String {
+    fn user_config_path(&self) -> PathBuf {
         let home = get_home_dir();
-        let path = Path::new(&home).join(".config/envset/zshrc");
-        return path
-            .to_str()
-            .expect("Unable to make path to String")
-            .to_string();
+        let mut path = PathBuf::from(&home);
+        path.push(".config/envset/zshrc");
+        return path;
     }
 
     fn inits_setup(&self) {
@@ -113,7 +106,9 @@ impl Shell for ZshShell {
     }
 
     fn add_env(&self, path: String) -> Result<(), String> {
-        todo!()
+        let shell_code = format!("");
+        self.write(shell_code);
+        Ok(())
     }
 
     fn delete_env(&self, path: String) -> Result<(), String> {
@@ -128,27 +123,24 @@ impl Shell for FishShell {
         String::from("fish")
     }
 
-    fn shell_config_path(&self) -> String {
+    fn shell_config_path(&self) -> PathBuf {
         let home = get_home_dir();
         // TODO: create this fish file if the shell is installed.
-        let path = Path::new(&home).join(".config/fish/conf.d/envset.fish");
-        return path
-            .to_str()
-            .expect("Unable to make path to String")
-            .to_string();
+        let mut path = PathBuf::from(&home);
+        path.push(".config/fish/conf.d/envset.fish");
+        return path;
     }
 
-    fn user_config_path(&self) -> String {
+    fn user_config_path(&self) -> PathBuf {
         let home = get_home_dir();
-        let path = Path::new(&home).join(".config/envset/envset.fish");
-        return path
-            .to_str()
-            .expect("Unable to make path to String")
-            .to_string();
+        let mut path = PathBuf::from(&home);
+        path.push(".config/envset/envset.fish");
+        return path;
     }
 
     fn inits_setup(&self) {
         // write a new file called envset.fish in config folder of fish shell.
+        // let mut user_conf_path = Path::new(self.user_config_path());
         // write the path of actual user config fish file in it.
     }
 
@@ -178,11 +170,11 @@ impl Shell for BashShell {
         todo!()
     }
 
-    fn shell_config_path(&self) -> String {
+    fn shell_config_path(&self) -> PathBuf {
         todo!()
     }
 
-    fn user_config_path(&self) -> String {
+    fn user_config_path(&self) -> PathBuf {
         todo!()
     }
 
