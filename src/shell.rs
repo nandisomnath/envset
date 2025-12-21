@@ -1,8 +1,38 @@
-use std::{env, fs::OpenOptions, io::Write, path::Path};
+use std::{
+    env,
+    fs::{self, File, OpenOptions},
+    io::{BufRead, BufReader, BufWriter, SeekFrom, Write},
+    path::Path,
+};
 
 pub fn get_home_dir() -> String {
     let home = env::var("HOME").expect("Unable to get home dir");
     return home;
+}
+
+/// shell_code - is the line to be deleted.
+fn delete_line(file: &mut File, user_confg_path: String, shell_code: String) {
+    let reader = BufReader::new(file);
+    let mut file_path = env::temp_dir();
+    file_path.push("envset.fish");
+    let outfile = OpenOptions::new()
+        .write(true)
+        .open(file_path.as_path())
+        .unwrap();
+    let mut writer = BufWriter::new(outfile);
+
+    let mut current_line;
+    for line in reader.lines() {
+        current_line = line.expect("Unable to get the line");
+
+        if current_line == shell_code {
+            continue;
+        }
+
+        writer.write_all(current_line.as_bytes()).unwrap();
+    }
+    fs::copy(file_path.clone(), user_confg_path);
+    fs::remove_file(file_path);
 }
 
 /// Shell is a blueprint for other shell installations
@@ -29,7 +59,20 @@ pub trait Shell {
             .append(true)
             .open(self.shell_config_path())
         {
-            Ok(mut file) => file.write_all(shell_code.as_bytes()),
+            Ok(mut file) => file.write(shell_code.as_bytes()),
+            Err(_) => return Err(String::from("Unable to open shell config file")),
+        };
+        Ok(())
+    }
+
+    // Remove from a file
+    fn delete(&self, shell_code: String) -> Result<(), String> {
+        match OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(self.shell_config_path())
+        {
+            Ok(mut file) => delete_line(&mut file, self.user_config_path(), shell_code),
             Err(_) => return Err(String::from("Unable to open shell config file")),
         };
         Ok(())
@@ -117,13 +160,14 @@ impl Shell for FishShell {
         // generate the env string using path
         // This will add permanently
         let shell_code = format!("\nfish_add_path {}", path);
-
         self.write(shell_code); // write that in user config file
         Ok(())
     }
 
     fn delete_env(&self, path: String) -> Result<(), String> {
-        todo!()
+        let shell_code = format!("\nfish_add_path {}", path);
+        self.delete(shell_code);
+        Ok(())
     }
 }
 
