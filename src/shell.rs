@@ -59,7 +59,7 @@ pub trait Shell {
             .append(true)
             .open(self.shell_config_path())
         {
-            Ok(mut file) => file.write(shell_code.as_bytes()),
+            Ok(mut file) => file.write_all(shell_code.as_bytes()),
             Err(_) => return Err(String::from("Unable to open shell config file")),
         };
         Ok(())
