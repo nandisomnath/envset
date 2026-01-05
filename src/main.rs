@@ -31,8 +31,15 @@ struct Args {
     /// This toggle add all the previously added paths(only using envset)
     /// current shell. User need to run this while in specific shell.
     /// If already the shell have configs then it will do nothing.
-    #[arg(id = "sync", long, short)]
-    sync: bool,
+    #[arg(id = "init", long, short)]
+    init_setup: bool,
+
+    /// This setups the envset config run for first time on every shell.
+    ///
+    /// This adds all the configs to shell folder and shell config to
+    /// work all envset paths.
+    #[arg(id = "shell", long, short)]
+    shell: bool,
 }
 
 fn main() {
