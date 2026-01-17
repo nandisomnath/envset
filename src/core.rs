@@ -1,30 +1,27 @@
 use std::env;
-use std::io::Write;
-use std::path::{Path, PathBuf};
-use std::{collections::HashMap, fs::OpenOptions};
-
+use std::path::PathBuf;
 
 pub fn envset_dir() -> PathBuf {
-    let mut home_dir = env::home_dir().unwrap();
-    home_dir.push(".config/envset");
-    return home_dir;
+    let mut envset_base_dir = env::home_dir().unwrap();
+    envset_base_dir.push(".config/envset");
+    envset_base_dir
 }
 
 #[derive(Debug)]
 pub enum ShellOptions {
-    FISH,
-    BASH,
-    ZSH,
-    UNKOWN(String), // When no matching shell is found
+    Fish,
+    Bash,
+    Zsh,
+    Unkown(String), // When no matching shell is found
 }
 
 /// Indentifies the shell and gives a value from enum Shell.
 pub fn get_shell(shell: &str) -> ShellOptions {
     match shell {
-        "fish" => return ShellOptions::ZSH,
-        "bash" => return ShellOptions::BASH,
-        "zsh" => return ShellOptions::ZSH,
-        _ => return ShellOptions::UNKOWN(shell.to_string())
+        "fish" => ShellOptions::Fish,
+        "bash" => ShellOptions::Bash,
+        "zsh" => ShellOptions::Zsh,
+        _ => ShellOptions::Unkown(shell.to_string()),
     }
 }
 
@@ -91,13 +88,13 @@ pub fn add_env(env_value: String, remove_path: bool, init_setup: bool, shell: &s
     println!("{:?}", shop);
 
     match shop {
-        ShellOptions::UNKOWN(shell_path) => println!("Unable to add to '{}'", shell_path),
-        ShellOptions::BASH => {
+        ShellOptions::Unkown(shell_path) => println!("Unable to add to '{}'", shell_path),
+        ShellOptions::Bash => {
             // TODO: configure the bash use Shell trait fucntions
         }
-        ShellOptions::FISH => { //TODO: configure this shells usng Shell trait functions
+        ShellOptions::Fish => { //TODO: configure this shells usng Shell trait functions
         }
-        ShellOptions::ZSH => { //TODO: configure this shells usng Shell trait functions
+        ShellOptions::Zsh => { //TODO: configure this shells usng Shell trait functions
         }
     }
 }

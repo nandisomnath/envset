@@ -1,33 +1,19 @@
 use std::{
-    env,
+    env::{self, temp_dir},
     fs::{self, File, OpenOptions},
     io::{BufRead, BufReader, BufWriter, Write},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
+use clap::error::Result;
+
 /// shell_code - is the line to be deleted.
-fn delete_line(file: &mut File, user_confg_path: String, shell_code: String) {
-    let reader = BufReader::new(file);
-    let mut file_path = env::temp_dir();
-    file_path.push("envset.fish");
-    let outfile = OpenOptions::new()
-        .write(true)
-        .open(file_path.as_path())
-        .unwrap();
-    let mut writer = BufWriter::new(outfile);
+fn delete_line(user_config_path: PathBuf, shell_code: String) -> Result<(), String> {
+    let mut tmp_file = temp_dir();
+    tmp_file.push("envset.zsh");
+    fs::copy(user_config_path, tmp_file);
 
-    let mut current_line;
-    for line in reader.lines() {
-        current_line = line.expect("Unable to get the line");
-
-        if current_line == shell_code {
-            continue;
-        }
-
-        writer.write_all(current_line.as_bytes()).unwrap();
-    }
-    fs::copy(file_path.clone(), user_confg_path);
-    fs::remove_file(file_path);
+    Ok(())
 }
 
 /// Shell is a blueprint for other shell installations
@@ -61,62 +47,56 @@ pub trait Shell {
 
     // Remove from a file
     fn delete(&self, shell_code: String) -> Result<(), String> {
-        match OpenOptions::new()
-            .write(true)
-            .append(true)
-            .open(self.shell_config_path())
-        {
-            Ok(mut file) => delete_line(
-                &mut file,
-                self.user_config_path().to_str().unwrap().to_string(),
-                shell_code,
-            ),
-            Err(_) => return Err(String::from("Unable to open shell config file")),
-        };
+        let user_config_path = self.user_config_path();
+        delete_line(user_config_path, shell_code)?;
         Ok(())
     }
 }
 
-// pub struct ZshShell;
-//
-// impl Shell for ZshShell {
-//     fn name(&self) -> String {
-//         String::from("zsh")
-//     }
-//
-//     fn shell_config_path(&self) -> PathBuf {
-//         let home = get_home_dir();
-//         let mut path = PathBuf::from(&home);
-//         path.push(".zshrc");
-//         return path;
-//     }
-//
-//     fn user_config_path(&self) -> PathBuf {
-//         let home = get_home_dir();
-//         let mut path = PathBuf::from(&home);
-//         path.push(".config/envset/zshrc");
-//         return path;
-//     }
-//
-//     fn inits_setup(&self) {
-//         todo!()
-//     }
-//
-//     fn new() -> Self {
-//         Self {}
-//     }
-//
-//     fn add_env(&self, path: String) -> Result<(), String> {
-//         let shell_code = format!("");
-//         self.write(shell_code);
-//         Ok(())
-//     }
-//
-//     fn delete_env(&self, path: String) -> Result<(), String> {
-//         todo!()
-//     }
-// }
-//
+pub struct ZshShell;
+
+impl Shell for ZshShell {
+    fn name(&self) -> String {
+        String::from("zsh")
+    }
+
+    fn shell_config_path(&self) -> PathBuf {
+        let home = get_home_dir();
+        let mut path = PathBuf::from(&home);
+        path.push(".zshrc");
+        return path;
+    }
+
+    fn user_config_path(&self) -> PathBuf {
+        let home = get_home_dir();
+        let mut path = PathBuf::from(&home);
+        path.push(".config/envset/zshrc");
+        return path;
+    }
+
+    fn inits_setup(&self) {
+        todo!()
+    }
+
+    fn new() -> Self {
+        Self {}
+    }
+
+    fn add_env(&self, path: String) -> Result<(), String> {
+        let shell_code = format!("");
+        self.write(shell_code);
+        Ok(())
+    }
+
+    fn delete_env(&self, path: String) -> Result<(), String> {
+        todo!()
+    }
+
+    fn get_shell_code(&self, env_value: String) -> String {
+        todo!()
+    }
+}
+
 pub struct FishShell;
 
 impl Shell for FishShell {
